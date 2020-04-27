@@ -6,7 +6,6 @@ using UnityEditor.Animations;
 
 public static class ControllerInitialState
 {
-
     [MenuItem("Assets/Set Initial State", false, 16)]
     private static void SetInitialStates()
     {
@@ -17,7 +16,6 @@ public static class ControllerInitialState
             {
                 SetInitialState(con);
             }
-            Debug.Log("All selected controllers set with initial states");
         }
     }
 
@@ -38,13 +36,9 @@ public static class ControllerInitialState
 
     private static void SetInitialState(AnimatorController cont)
     {
-        Debug.Log("Setting initial state on... " + cont.name);
-
         AnimatorStateMachine asm = cont.layers[0].stateMachine;
         AnimatorState newState = asm.AddState("Default State");
         asm.defaultState = newState;
-
-        Debug.Log("Animation controller initial state set!");
     }
 
     [MenuItem("Assets/Set Initial State", true)]

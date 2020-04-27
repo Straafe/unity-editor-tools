@@ -15,7 +15,6 @@ public static class UnloopAnimationContext
             {
                 UnLoopClip(clip);
             }
-            Debug.Log("All selected clips unlooped");
         }
     }
     public static List<AnimationClip> GetSelectedClips()
@@ -34,11 +33,9 @@ public static class UnloopAnimationContext
     }
     private static void UnLoopClip(AnimationClip clip)
     {
-        Debug.Log("Unlooping clip... " + clip.name);
         AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(clip);
         settings.loopTime = false;
         AnimationUtility.SetAnimationClipSettings(clip, settings);
-        Debug.Log("Animation unlooped!");
     }
     [MenuItem("Assets/Unloop Animation", true)]
     static bool UnLoopValidation()

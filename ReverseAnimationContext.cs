@@ -39,9 +39,6 @@ public static class ReverseAnimationContext
     private static void ReverseClip(AnimationClip clip, Animator[] animators)//List<AnimatorController> animConts
     {
         AnimationClip originalClip = clip;
-        Debug.Log("Reversing clip... " + clip.name);
-        //var clip = GetSelectedClip();
-
         string directoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(clip)); //Selection.activeObject
         string fileName = Path.GetFileName(AssetDatabase.GetAssetPath(clip));
         string fileExtension = Path.GetExtension(AssetDatabase.GetAssetPath(clip));
@@ -88,7 +85,6 @@ public static class ReverseAnimationContext
             AnimationUtility.SetAnimationEvents(clip, events);
         }
         
-        //Add clip to an animation controller if one exists that contained the original clip
         foreach (Animator anim in animators)
         {
             AnimationClip[] clips = AnimationUtility.GetAnimationClips(anim.gameObject);
@@ -110,8 +106,6 @@ public static class ReverseAnimationContext
                 animState.motion = clip;
             }
         }
-
-        Debug.Log("Animation reversed!");
     }
 
     [MenuItem("Assets/Create Reversed Clip", true)]
