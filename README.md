@@ -8,6 +8,7 @@ All context scripts work with shift-clicking or control-clicking to affect multi
 -------------------------------------
 
 ReverseAnimationContext.cs allows you to easily reverse animation clips.
-<video controls preload> 
+
+<video> 
     <source src="https://i.imgur.com/FLlMB6o.mp4"></source> 
 </video>
