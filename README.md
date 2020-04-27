@@ -9,5 +9,5 @@ All context scripts work with shift-clicking or control-clicking to affect multi
 
 ReverseAnimationContext.cs allows you to easily reverse animation clips.
 
-![Alt Text](https://i.imgur.com/FLlMB6o.mp4)
+![Reverse Animation](https://i.imgur.com/NCcCKn2.gif)
 
