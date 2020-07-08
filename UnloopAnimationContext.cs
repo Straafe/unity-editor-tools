@@ -40,7 +40,7 @@ public static class UnloopAnimationContext
     [MenuItem("Assets/Unloop Animation", true)]
     static bool UnLoopValidation()
     {
-        return Selection.activeObject.GetType() == typeof(AnimationClip);
+        return Selection.activeObject && Selection.activeObject.GetType() == typeof(AnimationClip);
     }
 
 }

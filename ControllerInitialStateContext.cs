@@ -44,7 +44,7 @@ public static class ControllerInitialState
     [MenuItem("Assets/Set Initial State", true)]
     static bool SetInitialStateValidation()
     {
-        return Selection.activeObject.GetType() == typeof(AnimatorController);
+        return Selection.activeObject && Selection.activeObject.GetType() == typeof(AnimatorController);
     }
 
 }
