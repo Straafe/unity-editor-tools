@@ -7,7 +7,7 @@ All context scripts work with shift-clicking or control-clicking to affect multi
 
 -------------------------------------
 
-ReverseAnimationContext.cs allows you to easily reverse animation clips.
+ReverseAnimationContext.cs allows you to easily reverse animation clips. Based on the discussion here (https://forum.unity.com/threads/how-can-i-play-an-animation-backwards.498287/) and Bunny83's answer here (https://answers.unity.com/questions/476819/reverse-animation-help.html)
 
 ![Reverse Animations](https://i.imgur.com/NCcCKn2.gif)
 
