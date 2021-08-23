@@ -36,18 +36,18 @@ public static class ReverseAnimationContext
         }
         return null;
     }
-    private static void ReverseClip(AnimationClip clip, Animator[] animators)//List<AnimatorController> animConts
+    private static void ReverseClip(AnimationClip clip, Animator[] animators)
     {
         AnimationClip originalClip = clip;
-        string directoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(clip)); //Selection.activeObject
+        string directoryPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(clip));
         string fileName = Path.GetFileName(AssetDatabase.GetAssetPath(clip));
         string fileExtension = Path.GetExtension(AssetDatabase.GetAssetPath(clip));
-        fileName = fileName.Split('.')[0]; 
+        fileName = fileName.Split('.')[0];
         string copiedFilePath = directoryPath + Path.DirectorySeparatorChar + fileName + "_Reversed" + fileExtension;
 
         AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(clip), copiedFilePath);
 
-        clip  = (AnimationClip)AssetDatabase.LoadAssetAtPath(copiedFilePath, typeof(AnimationClip));
+        clip = (AnimationClip)AssetDatabase.LoadAssetAtPath(copiedFilePath, typeof(AnimationClip));
 
         if (clip == null)
             return;
@@ -84,7 +84,23 @@ public static class ReverseAnimationContext
             }
             AnimationUtility.SetAnimationEvents(clip, events);
         }
-        
+
+        var objectReferenceCurves = AnimationUtility.GetObjectReferenceCurveBindings(clip);
+        foreach (EditorCurveBinding binding in objectReferenceCurves)
+        {
+            ObjectReferenceKeyframe[] objectReferenceKeyframes = AnimationUtility.GetObjectReferenceCurve(clip, binding);
+            for (int i = 0; i < objectReferenceKeyframes.Length; i++)
+            {
+                ObjectReferenceKeyframe K = objectReferenceKeyframes[i];
+                //K.time = clipLength - K.time - (1 / clip.frameRate); //Reversed sprite clips may be offset by 1 frame time
+                K.time = clipLength - K.time;
+                objectReferenceKeyframes[i] = K;
+            }
+            AnimationUtility.SetObjectReferenceCurve(clip, binding, objectReferenceKeyframes);
+        }
+
+        Debug.Log("New length: " + clip.length);
+
         foreach (Animator anim in animators)
         {
             AnimationClip[] clips = AnimationUtility.GetAnimationClips(anim.gameObject);
@@ -100,10 +116,11 @@ public static class ReverseAnimationContext
             if (foundClip)
             {
                 Debug.Log("Found the animator containing the original clip that was reversed, adding new clip to its state machine...");
-                AnimatorController controller= UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(anim.runtimeAnimatorController));
+                AnimatorController controller = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(anim.runtimeAnimatorController));
                 AnimatorStateMachine asm = controller.layers[0].stateMachine;
                 AnimatorState animState = asm.AddState(clip.name);
                 animState.motion = clip;
+                break;
             }
         }
     }
