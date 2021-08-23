@@ -99,8 +99,6 @@ public static class ReverseAnimationContext
             AnimationUtility.SetObjectReferenceCurve(clip, binding, objectReferenceKeyframes);
         }
 
-        Debug.Log("New length: " + clip.length);
-
         foreach (Animator anim in animators)
         {
             AnimationClip[] clips = AnimationUtility.GetAnimationClips(anim.gameObject);
