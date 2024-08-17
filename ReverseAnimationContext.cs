@@ -1,7 +1,8 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Animations;
 
 public static class ReverseAnimationContext
@@ -9,33 +10,31 @@ public static class ReverseAnimationContext
     [MenuItem("Assets/Create Reversed Clip", false, 14)]
     private static void ReverseClips()
     {
-        List<AnimatorController> animConts = new List<AnimatorController>();
         var animators = Object.FindObjectsOfType<Animator>();
         AssetDatabase.FindAssets("t:AnimatorController");
         List<AnimationClip> clips = GetSelectedClips();
-        if (clips != null && clips.Count > 0)
+
+        if (clips is not { Count: > 0 })
+            return;
+
+        foreach (AnimationClip clip in clips)
         {
-            foreach (AnimationClip clip in clips)
-            {
-                ReverseClip(clip, animators);
-            }
-            Debug.Log("All selected clips reversed");
+            ReverseClip(clip, animators);
         }
+
+        Debug.Log("All selected clips reversed");
     }
-    public static List<AnimationClip> GetSelectedClips()
+
+    private static List<AnimationClip> GetSelectedClips()
     {
         var clips = Selection.GetFiltered(typeof(AnimationClip), SelectionMode.Assets);
-        List<AnimationClip> animClips = new List<AnimationClip>();
-        if (clips.Length > 0)
-        {
-            foreach (var clip in clips)
-            {
-                animClips.Add(clip as AnimationClip);
-            }
-            return animClips;
-        }
-        return null;
+
+        if (clips.Length <= 0)
+            return null;
+
+        return clips.Select(clip => clip as AnimationClip).ToList();
     }
+
     private static void ReverseClip(AnimationClip clip, Animator[] animators)
     {
         AnimationClip originalClip = clip;
@@ -63,12 +62,12 @@ public static class ReverseAnimationContext
 
             for (int i = 0; i < keyCount; i++)
             {
-                Keyframe K = keys[i];
-                K.time = clipLength - K.time;
-                var tmp = -K.inTangent;
-                K.inTangent = -K.outTangent;
-                K.outTangent = tmp;
-                keys[i] = K;
+                Keyframe kf = keys[i];
+                kf.time = clipLength - kf.time;
+                var tmp = -kf.inTangent;
+                kf.inTangent = -kf.outTangent;
+                kf.outTangent = tmp;
+                keys[i] = kf;
             }
 
             animCurve.keys = keys;
@@ -78,55 +77,50 @@ public static class ReverseAnimationContext
         var events = AnimationUtility.GetAnimationEvents(clip);
         if (events.Length > 0)
         {
-            for (int i = 0; i < events.Length; i++)
+            foreach (var e in events)
             {
-                events[i].time = clipLength - events[i].time;
+                e.time = clipLength - e.time;
             }
+
             AnimationUtility.SetAnimationEvents(clip, events);
         }
 
         var objectReferenceCurves = AnimationUtility.GetObjectReferenceCurveBindings(clip);
         foreach (EditorCurveBinding binding in objectReferenceCurves)
         {
-            ObjectReferenceKeyframe[] objectReferenceKeyframes = AnimationUtility.GetObjectReferenceCurve(clip, binding);
+            ObjectReferenceKeyframe[] objectReferenceKeyframes =
+                AnimationUtility.GetObjectReferenceCurve(clip, binding);
             for (int i = 0; i < objectReferenceKeyframes.Length; i++)
             {
-                ObjectReferenceKeyframe K = objectReferenceKeyframes[i];
+                ObjectReferenceKeyframe kf = objectReferenceKeyframes[i];
                 //K.time = clipLength - K.time - (1 / clip.frameRate); //Reversed sprite clips may be offset by 1 frame time
-                K.time = clipLength - K.time;
-                objectReferenceKeyframes[i] = K;
+                kf.time = clipLength - kf.time;
+                objectReferenceKeyframes[i] = kf;
             }
+
             AnimationUtility.SetObjectReferenceCurve(clip, binding, objectReferenceKeyframes);
         }
 
         foreach (Animator anim in animators)
         {
             AnimationClip[] clips = AnimationUtility.GetAnimationClips(anim.gameObject);
-            bool foundClip = false;
-            foreach (AnimationClip c in clips)
-            {
-                if (c == originalClip)
-                {
-                    foundClip = true;
-                    break;
-                }
-            }
-            if (foundClip)
-            {
-                Debug.Log("Found the animator containing the original clip that was reversed, adding new clip to its state machine...");
-                AnimatorController controller = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(UnityEditor.AssetDatabase.GetAssetPath(anim.runtimeAnimatorController));
-                AnimatorStateMachine asm = controller.layers[0].stateMachine;
-                AnimatorState animState = asm.AddState(clip.name);
-                animState.motion = clip;
-                break;
-            }
+
+            if (clips.All(c => c != originalClip))
+                continue;
+
+            Debug.Log("Found the animator containing the original clip that was reversed, adding new clip to its state machine...");
+            AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(AssetDatabase.GetAssetPath(anim.runtimeAnimatorController));
+            AnimatorStateMachine asm = controller.layers[0].stateMachine;
+            AnimatorState animState = asm.AddState(clip.name);
+            animState.motion = clip;
+            break;
         }
     }
 
     [MenuItem("Assets/Create Reversed Clip", true)]
-    static bool ReverseClipValidation()
+    private static bool ReverseClipValidation()
     {
-        return Selection.activeObject && Selection.activeObject.GetType() == typeof(AnimationClip);
+        return Selection.activeObject && Selection.activeObject is AnimationClip;
     }
 
     public static AnimationClip GetSelectedClip()
@@ -136,7 +130,7 @@ public static class ReverseAnimationContext
         {
             return clips[0] as AnimationClip;
         }
+
         return null;
     }
-
 }
