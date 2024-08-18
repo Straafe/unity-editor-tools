@@ -2,6 +2,7 @@
 Some simple quality of life tools for Unity.
 
 Simply drop these scripts in your project and the context menu options will appear when you right-click on applicable files.
+Make sure these scripts are within an "Editor"-folder in Unity to be excluded in builds. 
 
 All context scripts work with shift-clicking or control-clicking to affect multiple files at once.
 
