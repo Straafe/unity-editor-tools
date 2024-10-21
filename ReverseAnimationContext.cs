@@ -10,7 +10,7 @@ public static class ReverseAnimationContext
     [MenuItem("Assets/Create Reversed Clip", false, 14)]
     private static void ReverseClips()
     {
-        var animators = Object.FindObjectsOfType<Animator>();
+        var animators = Object.FindObjectsByType<Animator>(FindObjectsSortMode.None);
         AssetDatabase.FindAssets("t:AnimatorController");
         List<AnimationClip> clips = GetSelectedClips();
 
